@@ -59,11 +59,16 @@ class RoundSerializer(serializers.ModelSerializer):
     heats = HeatSerializer(many=True, read_only=True)
     judges = JudgeSerializer(many=True, read_only=True)
     heat_count = serializers.IntegerField(source='heats.count', read_only=True)
+    competition = serializers.PrimaryKeyRelatedField(
+        queryset=Competition.objects.all(),
+        write_only=True,
+        required=True
+    )
     
     class Meta:
         model = Round
         fields = [
-            'id', 'number', 'round_type', 'heat_size',
+            'id', 'competition', 'number', 'round_type', 'heat_size',
             'required_yes_count', 'advancing_count', 'alternate_count',
             'heats', 'judges', 'heat_count',
             'is_active', 'is_complete', 'created_at'

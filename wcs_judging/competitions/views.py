@@ -242,11 +242,12 @@ class RoundViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'])
     def generate_heats(self, request, pk=None):
-        """Generate heats for this round."""
+        """Generate heats for this round. Supports repeat dancers when role counts differ."""
         round_obj = self.get_object()
         
         # Get heat size from request or use default
         heat_size = request.data.get('heat_size', round_obj.heat_size)
+        num_heats_override = request.data.get('num_heats')
         
         # Get competitors for this competition
         competition = round_obj.competition
@@ -263,53 +264,71 @@ class RoundViewSet(viewsets.ModelViewSet):
         random.shuffle(leaders)
         random.shuffle(followers)
         
-        # Calculate number of heats needed
         num_leaders = len(leaders)
         num_followers = len(followers)
-        num_heats = max(
+        
+        # Calculate number of heats (allow override for import scenario)
+        num_heats = num_heats_override or max(
             (num_leaders + heat_size - 1) // heat_size,
             (num_followers + heat_size - 1) // heat_size
         )
         
+        # Target couples per heat (balanced)
+        total_slots = num_heats * heat_size
+        leader_repeats_needed = max(0, total_slots - num_leaders)
+        follower_repeats_needed = max(0, total_slots - num_followers)
+        
+        # Build leader and follower "slot" lists - may include repeats
+        def build_slot_list(pool, count, repeats_needed):
+            result = list(pool)
+            idx = 0
+            for _ in range(repeats_needed):
+                result.append(pool[idx % len(pool)])
+                idx += 1
+            return result
+        
+        leader_slots = build_slot_list(leaders, num_leaders, leader_repeats_needed)
+        follower_slots = build_slot_list(followers, num_followers, follower_repeats_needed)
+        
         created_heats = []
+        repeat_summary = {}
+        if leader_repeats_needed > 0:
+            repeat_summary['leaders_repeating'] = leader_repeats_needed
+        if follower_repeats_needed > 0:
+            repeat_summary['followers_repeating'] = follower_repeats_needed
         
         with transaction.atomic():
-            # Delete existing heats
             round_obj.heats.all().delete()
             
-            # Create heats with balanced distribution
             leader_idx = 0
             follower_idx = 0
             
             for heat_num in range(1, num_heats + 1):
                 heat = Heat.objects.create(round=round_obj, number=heat_num)
                 
-                # Calculate how many leaders/followers for this heat
-                remaining_leaders = num_leaders - leader_idx
-                remaining_followers = num_followers - follower_idx
                 remaining_heats = num_heats - heat_num + 1
+                leaders_this_heat = (len(leader_slots) - leader_idx + remaining_heats - 1) // remaining_heats
+                followers_this_heat = (len(follower_slots) - follower_idx + remaining_heats - 1) // remaining_heats
+                pairs_this_heat = min(leaders_this_heat, followers_this_heat)
                 
-                leaders_this_heat = (remaining_leaders + remaining_heats - 1) // remaining_heats
-                followers_this_heat = (remaining_followers + remaining_heats - 1) // remaining_heats
-                
-                # Add leaders
-                for _ in range(leaders_this_heat):
-                    if leader_idx < num_leaders:
-                        heat.leaders.add(leaders[leader_idx])
+                for _ in range(pairs_this_heat):
+                    if leader_idx < len(leader_slots):
+                        heat.leaders.add(leader_slots[leader_idx])
                         leader_idx += 1
-                
-                # Add followers
-                for _ in range(followers_this_heat):
-                    if follower_idx < num_followers:
-                        heat.followers.add(followers[follower_idx])
+                    if follower_idx < len(follower_slots):
+                        heat.followers.add(follower_slots[follower_idx])
                         follower_idx += 1
                 
                 created_heats.append(heat)
         
-        return Response({
+        response_data = {
             'created': len(created_heats),
             'heats': HeatSerializer(created_heats, many=True).data
-        })
+        }
+        if repeat_summary:
+            response_data['repeat_summary'] = repeat_summary
+        
+        return Response(response_data)
     
     @action(detail=True, methods=['get'])
     def results(self, request, pk=None):

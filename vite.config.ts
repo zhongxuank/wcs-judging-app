@@ -2,9 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: '/static/', // Match Django STATIC_URL so production asset paths resolve
+  // Use '/' in dev so Vite serves assets directly; '/static/' only for production build (Django)
+  base: command === 'build' ? '/static/' : '/',
   server: {
     port: 5173,
     proxy: {
@@ -29,4 +30,4 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
-})
+}))

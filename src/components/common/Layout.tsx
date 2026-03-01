@@ -6,39 +6,33 @@ interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            <nav className="bg-white shadow-lg border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex items-center">
-                            <div className="flex-shrink-0 flex items-center">
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                                        <span className="text-white font-bold text-xl">W</span>
-                                    </div>
-                                    <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hidden sm:block">
-                                        WCS Judging
-                                    </h1>
-                                </div>
+        <div className="min-h-screen bg-slate-50">
+            <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-sm">
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-14 items-center">
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 shadow-sm">
+                                <span className="text-sm font-bold text-white">W</span>
                             </div>
+                            <span className="text-lg font-semibold text-slate-800">
+                                WCS Judging
+                            </span>
                         </div>
                     </div>
                 </div>
-            </nav>
+            </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 md:p-8 overflow-hidden">
+            <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+                <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8 md:p-10">
                     {children}
                 </div>
             </main>
 
-            <footer className="mt-auto py-4">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <p className="text-center text-xs sm:text-sm text-gray-500">
-                        West Coast Swing Competition Management System
-                    </p>
+            <footer className="mt-12 border-t border-slate-200/60 bg-white/50 py-4">
+                <div className="mx-auto max-w-4xl px-4 text-center text-xs text-slate-500 sm:px-6">
+                    West Coast Swing Competition Management System
                 </div>
             </footer>
         </div>
     );
-}; 
+};

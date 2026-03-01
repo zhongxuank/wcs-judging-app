@@ -5,16 +5,22 @@ import type { Judge, JudgeFormState, JudgeCreateInput } from '../../types';
 interface JudgeAssignmentProps {
     chiefJudge: JudgeFormState;
     competitionId: string;
+    initialJudgeCount?: number;
     onComplete: (judges: { leaders: Judge[]; followers: Judge[] }) => void;
     onBack: () => void;
     isSubmitting?: boolean;
 }
 
-export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack, isSubmitting: externalSubmitting }: JudgeAssignmentProps) => {
-    const [judgeCount, setJudgeCount] = useState<3 | 5 | 7>(3);
+export const JudgeAssignment = ({ chiefJudge, competitionId, initialJudgeCount = 3, onComplete, onBack, isSubmitting: externalSubmitting }: JudgeAssignmentProps) => {
+    const [judgeCount, setJudgeCount] = useState<number>(initialJudgeCount);
     const [judges, setJudges] = useState<JudgeFormState[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Sync with parent when initialJudgeCount changes
+    useEffect(() => {
+        setJudgeCount(initialJudgeCount);
+    }, [initialJudgeCount]);
 
     // Automatically create judge slots when count changes
     useEffect(() => {
@@ -105,98 +111,67 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
     return (
         <div className="space-y-6">
             {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-sm text-red-600">{error}</p>
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm text-red-700">{error}</p>
                 </div>
             )}
 
             <div>
-                <label className="block text-sm font-medium text-gray-700">
-                    Number of Judges per Role
-                </label>
-                <div className="mt-2 space-x-4">
-                    {[3, 5, 7].map((count) => (
-                        <button
-                            key={count}
-                            type="button"
-                            onClick={() => !isLoading && setJudgeCount(count as 3 | 5 | 7)}
-                            disabled={isLoading}
-                            className={`px-4 py-2 rounded ${
-                                judgeCount === count
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'bg-gray-200 text-gray-700'
-                            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            {count}
-                        </button>
-                    ))}
-                </div>
-                <p className="mt-2 text-sm text-gray-600">
-                    Selected: {judgeCount} judges per role ({judgeCount * 2} total judges needed)
+                <span className="label mb-3 block">Number of Judges per Role</span>
+                <p className="mb-2 text-sm text-slate-500">
+                    {judgeCount} judges per role ({judgeCount * 2} total needed) — selected in Basic Info
                 </p>
             </div>
 
-            <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-medium">Chief Judge</h3>
-                <div className="mt-2 p-4 bg-gray-50 rounded">
-                    <p>{chiefJudge.name} (Judging both roles)</p>
-                </div>
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-4">
+                <h3 className="section-title mb-2">Chief Judge</h3>
+                <p className="text-sm text-slate-600">{chiefJudge.name} <span className="text-slate-400">(Judging both roles)</span></p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <h3 className="text-lg font-medium mb-4">Judge Assignments</h3>
-                    <div className="space-y-4 max-h-64 overflow-y-auto">
+                    <h3 className="section-title mb-4">Judge Assignments</h3>
+                    <div className="max-h-64 space-y-3 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50/30 p-3">
                         {judges.map((judge, index) => (
-                            <div key={judge.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded">
+                            <div key={judge.id} className="flex items-center gap-3 rounded-md bg-white p-2 shadow-sm">
                                 <input
                                     type="text"
                                     value={judge.name}
                                     onChange={(e) => handleJudgeNameChange(index, e.target.value)}
                                     placeholder={`Judge ${index + 1} Name`}
-                                    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="input-base flex-1"
                                     required
                                     disabled={isLoading}
                                 />
                                 <select
                                     value={judge.assigned_role || ''}
                                     onChange={(e) => handleRoleAssignment(index, e.target.value as 'leader' | 'follower')}
-                                    className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="input-base w-36 shrink-0"
                                     required
                                     disabled={isLoading}
                                 >
                                     <option value="">Select Role</option>
-                                    <option value="leader">Leader Judge</option>
-                                    <option value="follower">Follower Judge</option>
+                                    <option value="leader">Leader</option>
+                                    <option value="follower">Follower</option>
                                 </select>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="mt-4 p-4 bg-blue-50 rounded">
-                    <h4 className="text-sm font-medium text-blue-900">Current Assignment Status</h4>
-                    <div className="mt-2 text-sm text-blue-700">
-                        <p>Leader Judges: {currentCounts.leaderCount} of {judgeCount} assigned</p>
-                        <p>Follower Judges: {currentCounts.followerCount} of {judgeCount} assigned</p>
-                    </div>
+                <div className="rounded-lg border border-indigo-200 bg-indigo-50/50 p-4">
+                    <h4 className="text-sm font-medium text-indigo-900">Assignment Status</h4>
+                    <p className="mt-1 text-sm text-indigo-700">
+                        Leader Judges: {currentCounts.leaderCount} of {judgeCount} · Follower Judges: {currentCounts.followerCount} of {judgeCount}
+                    </p>
                 </div>
 
-                <div className="flex justify-between pt-4">
-                    <button
-                        type="button"
-                        onClick={onBack}
-                        disabled={isLoading}
-                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 disabled:opacity-50"
-                    >
+                <div className="flex justify-between gap-4 border-t border-slate-200 pt-6">
+                    <button type="button" onClick={onBack} disabled={isLoading} className="btn-secondary">
                         Back
                     </button>
-                    <button
-                        type="submit"
-                        disabled={!isFormValid || isLoading}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                        {isLoading ? 'Saving...' : 'Next: Competitor Import'}
+                    <button type="submit" disabled={!isFormValid || isLoading} className="btn-primary">
+                        {isLoading ? 'Saving...' : 'Next: Competitors'}
                     </button>
                 </div>
             </form>

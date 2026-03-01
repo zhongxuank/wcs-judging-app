@@ -76,6 +76,7 @@ export interface Round {
     number: number;
     round_type: 'preliminary' | 'final';
     heat_size: number;
+    competition?: string;
     required_yes_count?: number;
     advancing_count?: number;
     alternate_count?: 2 | 3;
@@ -321,11 +322,15 @@ export const roundAPI = {
         }),
     
     // Generate heats for a round
-    generateHeats: (id: string, heatSize?: number) =>
-        fetchAPI<{ created: number; heats: Heat[] }>(`/rounds/${id}/generate_heats/`, {
-            method: 'POST',
-            body: heatSize ? JSON.stringify({ heat_size: heatSize }) : undefined,
-        }),
+    generateHeats: (id: string, heatSize?: number, numHeats?: number) => {
+        const body: { heat_size?: number; num_heats?: number } = {};
+        if (heatSize != null) body.heat_size = heatSize;
+        if (numHeats != null) body.num_heats = numHeats;
+        return fetchAPI<{ created: number; heats: Heat[]; repeat_summary?: { leaders_repeating?: number; followers_repeating?: number } }>(
+            `/rounds/${id}/generate_heats/`,
+            { method: 'POST', body: JSON.stringify(body) }
+        );
+    },
     
     // Get round results
     getResults: (id: string) =>
