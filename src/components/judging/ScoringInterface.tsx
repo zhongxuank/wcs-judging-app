@@ -121,7 +121,7 @@ export const ScoringInterface = ({
                     <div key={competitor.id} className="border p-4 rounded-lg">
                         <div className="flex items-center justify-between">
                             <div>
-                                <span className="font-bold">#{competitor.bibNumber}</span>
+                                <span className="font-bold">#{competitor.bib_number}</span>
                                 <span className="ml-2">{competitor.name}</span>
                                 <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
                                     competitor.role === 'leader' 

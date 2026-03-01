@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { competitionAPI } from '../../services/api';
+import { competitionAPI, judgeAPI } from '../../services/api';
 import type { Competition, Judge, Competitor } from '../../types';
 import { JudgeAssignment } from './JudgeAssignment';
 import { CompetitorImport } from './CompetitorImport';
@@ -20,8 +20,8 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
     const [chiefJudge, setChiefJudge] = useState<Judge>({
         id: crypto.randomUUID(),
         name: '',
-        isChiefJudge: true,
-        assignedRole: 'both'
+        is_chief_judge: true,
+        assigned_role: 'both'
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -42,8 +42,7 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
             setCompetitionId(created.id);
             setCompetition(prev => ({
                 ...prev,
-                ...created,
-                chiefJudge
+                ...created
             }));
             setCurrentStep('judges');
         } catch (err) {
@@ -67,7 +66,7 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
             ];
 
             // Create judges via API
-            await competitionAPI.competitions?.judges?.bulkCreate?.(competitionId, allJudges);
+            await judgeAPI.bulkCreate(competitionId, allJudges);
 
             setCompetition(prev => ({
                 ...prev,
@@ -218,7 +217,7 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
                     type="text"
                     id="chiefJudge"
                     value={chiefJudge.name}
-                    onChange={(e) => setChiefJudge((prev: Judge) => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => setChiefJudge((prev) => ({ ...prev, name: e.target.value }))}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     required
                     disabled={isSubmitting}

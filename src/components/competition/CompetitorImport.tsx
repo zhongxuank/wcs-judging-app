@@ -72,14 +72,8 @@ export const CompetitorImport = ({ competitionId, onComplete, onBack }: Competit
             setImportErrors(result.errors || []);
             
             if (result.competitors && result.competitors.length > 0) {
-                // Convert API response to local type
-                const validCompetitors: Competitor[] = result.competitors.map(comp => ({
-                    id: comp.id,
-                    bibNumber: comp.bib_number,
-                    name: comp.name,
-                    role: comp.role
-                }));
-                setCompetitors(validCompetitors);
+                // API response matches local type (both use snake_case)
+                setCompetitors(result.competitors);
             } else {
                 setError('No competitors were imported. Please check the CSV format.');
             }
@@ -211,7 +205,7 @@ export const CompetitorImport = ({ competitionId, onComplete, onBack }: Competit
                         <tbody className="bg-white divide-y divide-gray-200">
                             {competitors.map((competitor, index) => (
                                 <tr key={competitor.id || index}>
-                                    <td className="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-900">#{competitor.bibNumber}</td>
+                                    <td className="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-900">#{competitor.bib_number}</td>
                                     <td className="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-900">{competitor.name}</td>
                                     <td className="px-3 sm:px-6 py-2 sm:py-4 text-xs sm:text-sm text-gray-900">
                                         <span className={`

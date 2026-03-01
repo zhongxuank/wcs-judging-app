@@ -22,8 +22,8 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
         const newJudges: Judge[] = Array.from({ length: judgeCount * 2 }, () => ({
             id: crypto.randomUUID(),
             name: '',
-            isChiefJudge: false,
-            assignedRole: undefined
+            is_chief_judge: false,
+            assigned_role: undefined
         }));
         setJudges(newJudges);
     }, [judgeCount]);
@@ -36,7 +36,7 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
 
     const handleRoleAssignment = (index: number, role: 'leader' | 'follower') => {
         const newJudges = [...judges];
-        newJudges[index] = { ...newJudges[index], assignedRole: role };
+        newJudges[index] = { ...newJudges[index], assigned_role: role };
         setJudges(newJudges);
     };
 
@@ -52,7 +52,7 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
                 .map(j => ({
                     name: j.name,
                     is_chief_judge: false,
-                    assigned_role: j.assignedRole || 'leader'
+                    assigned_role: j.assigned_role || 'leader'
                 }));
 
             // Also add the chief judge
@@ -70,22 +70,10 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
 
             // Convert API response to local Judge type
             const leaderJudges: Judge[] = createdJudges
-                .filter(j => !j.is_chief_judge && j.assigned_role === 'leader')
-                .map(j => ({
-                    id: j.id,
-                    name: j.name,
-                    isChiefJudge: j.is_chief_judge,
-                    assignedRole: j.assigned_role
-                }));
+                .filter(j => !j.is_chief_judge && j.assigned_role === 'leader');
             
             const followerJudges: Judge[] = createdJudges
-                .filter(j => !j.is_chief_judge && j.assigned_role === 'follower')
-                .map(j => ({
-                    id: j.id,
-                    name: j.name,
-                    isChiefJudge: j.is_chief_judge,
-                    assignedRole: j.assigned_role
-                }));
+                .filter(j => !j.is_chief_judge && j.assigned_role === 'follower');
 
             onComplete({ leaders: leaderJudges, followers: followerJudges });
         } catch (err) {
@@ -96,15 +84,15 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
     };
 
     const isValid = () => {
-        const leaderCount = judges.filter(j => j.assignedRole === 'leader' && j.name.trim() !== '').length;
-        const followerCount = judges.filter(j => j.assignedRole === 'follower' && j.name.trim() !== '').length;
+        const leaderCount = judges.filter(j => j.assigned_role === 'leader' && j.name.trim() !== '').length;
+        const followerCount = judges.filter(j => j.assigned_role === 'follower' && j.name.trim() !== '').length;
         return leaderCount === judgeCount && followerCount === judgeCount;
     };
 
     // Helper to show current judge allocation
     const getCurrentCounts = () => {
-        const leaderCount = judges.filter(j => j.assignedRole === 'leader' && j.name.trim() !== '').length;
-        const followerCount = judges.filter(j => j.assignedRole === 'follower' && j.name.trim() !== '').length;
+        const leaderCount = judges.filter(j => j.assigned_role === 'leader' && j.name.trim() !== '').length;
+        const followerCount = judges.filter(j => j.assigned_role === 'follower' && j.name.trim() !== '').length;
         return { leaderCount, followerCount };
     };
 
@@ -169,7 +157,7 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
                                     disabled={isLoading}
                                 />
                                 <select
-                                    value={judge.assignedRole || ''}
+                                    value={judge.assigned_role || ''}
                                     onChange={(e) => handleRoleAssignment(index, e.target.value as 'leader' | 'follower')}
                                     className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                     required
