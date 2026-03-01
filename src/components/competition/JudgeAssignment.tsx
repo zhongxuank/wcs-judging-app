@@ -1,25 +1,25 @@
 import { useState, useEffect } from 'react';
 import { judgeAPI } from '../../services/api';
-import type { Judge } from '../../types';
+import type { Judge, JudgeFormState, JudgeCreateInput } from '../../types';
 
 interface JudgeAssignmentProps {
-    chiefJudge: Judge;
+    chiefJudge: JudgeFormState;
     competitionId: string;
-    onComplete: (judges: { leaders: Judge[], followers: Judge[] }) => void;
+    onComplete: (judges: { leaders: Judge[]; followers: Judge[] }) => void;
     onBack: () => void;
     isSubmitting?: boolean;
 }
 
 export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack, isSubmitting: externalSubmitting }: JudgeAssignmentProps) => {
     const [judgeCount, setJudgeCount] = useState<3 | 5 | 7>(3);
-    const [judges, setJudges] = useState<Judge[]>([]);
+    const [judges, setJudges] = useState<JudgeFormState[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     // Automatically create judge slots when count changes
     useEffect(() => {
         // Create 2 * judgeCount slots (for both leader and follower roles)
-        const newJudges: Judge[] = Array.from({ length: judgeCount * 2 }, () => ({
+        const newJudges: JudgeFormState[] = Array.from({ length: judgeCount * 2 }, () => ({
             id: crypto.randomUUID(),
             name: '',
             is_chief_judge: false,
@@ -47,18 +47,18 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
 
         try {
             // Prepare judges for API (exclude empty names)
-            type JudgeInput = { name: string; is_chief_judge: boolean; assigned_role: 'leader' | 'follower' | 'both' };
-            
-            const validJudges: JudgeInput[] = judges
-                .filter(j => j.name.trim() !== '')
+            const validJudges: JudgeCreateInput[] = judges
+                .filter((j): j is JudgeFormState & { assigned_role: 'leader' | 'follower' } => 
+                    j.name.trim() !== '' && (j.assigned_role === 'leader' || j.assigned_role === 'follower')
+                )
                 .map(j => ({
                     name: j.name,
                     is_chief_judge: false,
-                    assigned_role: (j.assigned_role as 'leader' | 'follower') || 'leader'
+                    assigned_role: j.assigned_role
                 }));
 
             // Also add the chief judge
-            const allJudges: JudgeInput[] = [
+            const allJudges: JudgeCreateInput[] = [
                 ...validJudges,
                 {
                     name: chiefJudge.name,

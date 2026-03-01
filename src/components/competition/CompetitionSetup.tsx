@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { competitionAPI, judgeAPI } from '../../services/api';
-import type { Competition, Judge, Competitor } from '../../types';
+import { competitionAPI } from '../../services/api';
+import type { Competition, Judge, Competitor, JudgeFormState } from '../../types';
 import { JudgeAssignment } from './JudgeAssignment';
 import { CompetitorImport } from './CompetitorImport';
 
@@ -17,7 +17,7 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
         status: 'setup'
     });
     const [competitionId, setCompetitionId] = useState<string | null>(null);
-    const [chiefJudge, setChiefJudge] = useState<Judge>({
+    const [chiefJudge, setChiefJudge] = useState<JudgeFormState>({
         id: crypto.randomUUID(),
         name: '',
         is_chief_judge: true,
@@ -52,32 +52,15 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
         }
     };
 
-    const handleJudgeAssignment = async (judges: { leaders: Judge[], followers: Judge[] }) => {
+    const handleJudgeAssignment = (judges: { leaders: Judge[]; followers: Judge[] }) => {
         if (!competitionId) return;
 
-        setIsSubmitting(true);
-        setError(null);
-
-        try {
-            // Combine all judges including chief judge
-            const allJudges = [
-                ...judges.leaders,
-                ...judges.followers
-            ];
-
-            // Create judges via API
-            await judgeAPI.bulkCreate(competitionId, allJudges);
-
-            setCompetition(prev => ({
-                ...prev,
-                judges: [...judges.leaders, ...judges.followers]
-            }));
-            setCurrentStep('competitors');
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to save judges');
-        } finally {
-            setIsSubmitting(false);
-        }
+        // Judges are already created via JudgeAssignment; just update local state
+        setCompetition(prev => ({
+            ...prev,
+            judges: [...judges.leaders, ...judges.followers]
+        }));
+        setCurrentStep('competitors');
     };
 
     const handleCompetitorImport = async (competitors: { leaders: Competitor[], followers: Competitor[] }) => {

@@ -2,6 +2,8 @@
  * API service for communicating with Django backend
  */
 
+import type { JudgeCreateInput, CompetitorCreateInput } from '../types/domain';
+
 // In development, Vite proxy handles the /api path
 // In production, Django serves the API at /api
 const API_BASE_URL = '/api';
@@ -57,8 +59,8 @@ export interface Judge {
     id: string;
     name: string;
     is_chief_judge: boolean;
-    assigned_role?: 'leader' | 'follower' | 'both';
-    created_at?: string;
+    assigned_role: 'leader' | 'follower' | 'both';
+    created_at: string;
 }
 
 export interface Competitor {
@@ -66,7 +68,7 @@ export interface Competitor {
     bib_number: string;
     name: string;
     role: 'leader' | 'follower';
-    created_at?: string;
+    created_at: string;
 }
 
 export interface Round {
@@ -205,7 +207,7 @@ export const judgeAPI = {
         }),
     
     // Bulk create judges
-    bulkCreate: (competitionId: string, judges: Partial<Judge>[]) =>
+    bulkCreate: (competitionId: string, judges: JudgeCreateInput[]) =>
         fetchAPI<Judge[]>('/judges/bulk_create/', {
             method: 'POST',
             body: JSON.stringify({
@@ -250,7 +252,7 @@ export const competitorAPI = {
         }),
     
     // Bulk create competitors
-    bulkCreate: (competitionId: string, competitors: Partial<Competitor>[]) =>
+    bulkCreate: (competitionId: string, competitors: CompetitorCreateInput[]) =>
         fetchAPI<Competitor[]>('/competitors/bulk_create/', {
             method: 'POST',
             body: JSON.stringify({
