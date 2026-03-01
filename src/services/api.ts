@@ -49,8 +49,8 @@ export interface Competition {
     competitor_count?: number;
     judge_count?: number;
     round_count?: number;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface Judge {
@@ -58,7 +58,7 @@ export interface Judge {
     name: string;
     is_chief_judge: boolean;
     assigned_role: 'leader' | 'follower' | 'both';
-    created_at: string;
+    created_at?: string;
 }
 
 export interface Competitor {
@@ -66,7 +66,7 @@ export interface Competitor {
     bib_number: string;
     name: string;
     role: 'leader' | 'follower';
-    created_at: string;
+    created_at?: string;
 }
 
 export interface Round {
@@ -74,15 +74,15 @@ export interface Round {
     number: number;
     round_type: 'preliminary' | 'final';
     heat_size: number;
-    required_yes_count: number;
-    advancing_count: number;
-    alternate_count: 2 | 3;
+    required_yes_count?: number;
+    advancing_count?: number;
+    alternate_count?: 2 | 3;
     heats?: Heat[];
     judges?: Judge[];
     heat_count?: number;
-    is_active: boolean;
-    is_complete: boolean;
-    created_at: string;
+    is_active?: boolean;
+    is_complete?: boolean;
+    created_at?: string;
 }
 
 export interface Heat {
@@ -92,12 +92,12 @@ export interface Heat {
     followers: Competitor[];
     leader_ids?: string[];
     follower_ids?: string[];
-    is_complete: boolean;
-    created_at: string;
+    is_complete?: boolean;
+    created_at?: string;
 }
 
 export interface PreliminaryScore {
-    id: string;
+    id?: string;
     judge: string;
     judge_name?: string;
     competitor: string;
@@ -108,12 +108,12 @@ export interface PreliminaryScore {
     raw_score: number;
     calculated_result?: 'yes' | 'alt1' | 'alt2' | 'alt3' | 'no';
     points?: number;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface FinalScore {
-    id: string;
+    id?: string;
     judge: string;
     judge_name?: string;
     competitor: string;
@@ -124,8 +124,8 @@ export interface FinalScore {
     technique_score?: number;
     timing_score?: number;
     presentation_score?: number;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface RoundResult {
