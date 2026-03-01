@@ -57,7 +57,7 @@ export interface Judge {
     id: string;
     name: string;
     is_chief_judge: boolean;
-    assigned_role: 'leader' | 'follower' | 'both';
+    assigned_role?: 'leader' | 'follower' | 'both';
     created_at?: string;
 }
 
