@@ -1,0 +1,23 @@
+# Django and Core Dependencies
+Django>=4.2,<5.0
+dj-database-url>=1.0,<2.0
+psycopg2-binary>=2.9
+python-dotenv>=1.0
+
+# Django REST Framework
+djangorestframework>=3.14
+
+# Static Files & CORS
+whitenoise[brotli]>=6.6
+django-cors-headers>=4.3
+
+# Production Server
+gunicorn>=21.2
+uvicorn[standard]>=0.24
+
+# ASGI Support (for potential WebSocket features)
+channels>=4.0
+channels-redis>=4.1
+
+# Utilities
+Pillow>=10.0  # For image processing if needed

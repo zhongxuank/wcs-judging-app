@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/static/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WCS Judging System</title>
+    {% load static %}
+    {% if debug %}
+    <!-- Development: Vite dev server handles assets -->
+    <script type="module" src="http://localhost:5173/src/main.tsx"></script>
+    {% else %}
+    <!-- Production: WhiteNoise serves static files -->
+    <script type="module" crossorigin src="/static/assets/index.js"></script>
+    <link rel="stylesheet" crossorigin href="/static/assets/index.css">
+    {% endif %}
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

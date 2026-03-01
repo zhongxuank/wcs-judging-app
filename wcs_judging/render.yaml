@@ -1,0 +1,33 @@
+# Render Blueprint for WCS Judging Application
+# This file defines the infrastructure for deployment
+
+services:
+  # Django Web Service
+  - type: web
+    name: wcs-judging
+    runtime: python
+    plan: free
+    buildCommand: "cd wcs_judging && ./build.sh"
+    startCommand: "cd wcs_judging && python -m gunicorn wcs_judging.asgi:application -k uvicorn.workers.UvicornWorker"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wcs-judging-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: NPM_CONFIG_PRODUCTION
+        value: false
+      - key: NODE_VERSION
+        value: 20
+
+# PostgreSQL Database
+databases:
+  - name: wcs-judging-db
+    plan: free
+    databaseName: wcs_judging
+    user: wcs_judging_user
