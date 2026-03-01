@@ -47,16 +47,18 @@ export const JudgeAssignment = ({ chiefJudge, competitionId, onComplete, onBack,
 
         try {
             // Prepare judges for API (exclude empty names)
-            const validJudges = judges
+            type JudgeInput = { name: string; is_chief_judge: boolean; assigned_role: 'leader' | 'follower' | 'both' };
+            
+            const validJudges: JudgeInput[] = judges
                 .filter(j => j.name.trim() !== '')
                 .map(j => ({
                     name: j.name,
                     is_chief_judge: false,
-                    assigned_role: j.assigned_role || 'leader'
+                    assigned_role: (j.assigned_role as 'leader' | 'follower') || 'leader'
                 }));
 
             // Also add the chief judge
-            const allJudges = [
+            const allJudges: JudgeInput[] = [
                 ...validJudges,
                 {
                     name: chiefJudge.name,

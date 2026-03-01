@@ -70,7 +70,7 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
 
             setCompetition(prev => ({
                 ...prev,
-                judges: { leaders: judges.leaders, followers: judges.followers }
+                judges: [...judges.leaders, ...judges.followers]
             }));
             setCurrentStep('competitors');
         } catch (err) {
@@ -90,7 +90,7 @@ export const CompetitionSetup = ({ onComplete }: CompetitionSetupProps) => {
             // Competitors are already imported via the CompetitorImport component
             setCompetition(prev => ({
                 ...prev,
-                competitors: { leaders: competitors.leaders, followers: competitors.followers }
+                competitors: [...competitors.leaders, ...competitors.followers]
             }));
             setCurrentStep('rounds');
             
