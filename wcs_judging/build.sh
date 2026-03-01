@@ -23,12 +23,17 @@ mkdir -p staticfiles
 echo "Copying React build files..."
 cp -r ../dist/* staticfiles/ 2>/dev/null || true
 
+# Use built index.html as Django template (has correct hashed asset paths)
+echo "Updating Django template with built index.html..."
+cp ../dist/index.html templates/index.html
+
 # Collect static files for Django (but don't overwrite our files)
 echo "Collecting Django static files..."
 python manage.py collectstatic --no-input --clear
 
-# Re-copy React files after collectstatic
+# Re-copy React files after collectstatic (collectstatic may overwrite)
 cp -r ../dist/* staticfiles/ 2>/dev/null || true
+cp ../dist/index.html templates/index.html
 
 # Apply database migrations
 echo "Applying database migrations..."
